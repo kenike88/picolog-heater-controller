@@ -32,3 +32,4 @@ for i in range(0, 500):
 
 # this is test_branch_2
 # hitting Ctrl_S does not save to git! lol
+# i'm gonna make branch 2 the final branch to merge!
