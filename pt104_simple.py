@@ -30,3 +30,5 @@ for i in range(0, 500):
 
     time.sleep(0.1)
 
+# this is test_branch_2
+# hitting Ctrl_S does not save to git! lol
