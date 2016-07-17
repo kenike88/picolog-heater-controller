@@ -30,7 +30,6 @@ for i in range(0, 500):
 
     time.sleep(0.1)
 
-# this is test_branch_1
-# I've hit Ctrl+S to save
-# but it doesn't work
-
+# this is test_branch_2
+# hitting Ctrl_S does not save to git! lol
+# i'm gonna make branch 2 the final branch to merge!
