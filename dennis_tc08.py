@@ -1,7 +1,7 @@
 #!/usr/bin/env python
 # coding: utf8
 # Change Log:
-# 01/08/16:
+# 01/08/16: tested and works on SP4.
 # Use tc-08 channel 1 as the heater feedback sensor. Currently, this version only support a pure P control. I and D will be implemented later.
 
 from tc08usb import TC08USB, USBTC08_ERROR, USBTC08_UNITS, USBTC08_TC_TYPE

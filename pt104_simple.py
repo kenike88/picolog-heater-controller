@@ -29,7 +29,3 @@ for i in range(0, 500):
     print temp1 / 1000.0, temp2 / 1000.0, temp3 / 1000.0, dc,'%'
 
     time.sleep(0.1)
-
-# this is test_branch_2
-# hitting Ctrl_S does not save to git! lol
-# i'm gonna make branch 2 the final branch to merge!
