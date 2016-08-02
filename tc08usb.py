@@ -100,7 +100,7 @@ class TC08USB(object):
         return(self._dll.usb_tc08_set_channel(self._handle, channel, tc_type))
 
     def get_single(self):
-        return(self._dll.usb_tc08_get_single(self._handle, self._temp.ctypes.data, self._overflow_flags.ctypes.data, self._units.value))
+        return (self._dll.usb_tc08_get_single(self._handle, self._temp.ctypes.data, self._overflow_flags.ctypes.data, self._units.value))
 
     def close_unit(self):
         return(self._dll.usb_tc08_close_unit(self._handle))
