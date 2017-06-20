@@ -43,7 +43,11 @@ total_ch = tc_ch_num + rtd_ch_num
 
 data = [[] for _ in range(total_ch)]
 
-mydll = ctypes.windll.LoadLibrary('UsbPt104.dll')
+try:
+    mydll = ctypes.windll.LoadLibrary('usbpt104')
+except WindowsError:
+    raise ImportError('usbpt104.dll not found. Check driver is installed.')
+
 handlePointer = ctypes.c_short()
 status_unit = mydll.UsbPt104OpenUnit(ctypes.byref(handlePointer), 0)
 
@@ -105,9 +109,9 @@ ptr = 0
 
 
 def update():
-    global curves, data, ptr, p, temp_array, temp_hist, x, y, rtd_ch_num,rtd_array, tc1, tc2, rtd1
-    mydll = ctypes.windll.LoadLibrary('UsbPt104.dll')
-    handlePointer = ctypes.c_short()
+    global curves, data, ptr, p, temp_array, temp_hist, x, y, rtd_ch_num,rtd_array, tc1, tc2, rtd1, mydll, handlePointer
+    #mydll = ctypes.windll.LoadLibrary('UsbPt104.dll')
+    #handlePointer = ctypes.c_short()
 
 
     for j in range(1,rtd_ch_num+1):
