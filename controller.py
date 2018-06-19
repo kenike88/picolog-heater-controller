@@ -27,7 +27,7 @@ if response in ["y", "Y"]:
     pid_selector = int(input("For PID control, use TC or RTD? For TC, press 1. For RTD, press 2>> "))
     arduino_comm = int(input("What is Arduino comm port? If 'COM3', input '3' >> "))
     relay_pin = int(input("What is relay's i/o pin number on Arduino?  >> "))
-    setpoint = int(input("What is your temperature setpoint? >> "))
+    setpoint = float(input("What is your temperature setpoint? >> "))
     p_gain = int(input("What is your P gain value? >> "))
 else:
     print("proceeding")
@@ -36,7 +36,7 @@ ser_comm = 'COM'+str(arduino_comm)
 ser = serial.Serial(ser_comm, 9600)
 print(ser.name)
 print(ser.isOpen())
-tt.sleep(5)
+tt.sleep(2) #allow some time for serial port to open
 
 #======================= PT-104 Initialisation ========================================
 
@@ -84,11 +84,6 @@ while tc_init_flag == 0: #sometimes there is error setting the TC channels. if s
         tc_read += tc_gs_status
         if tc_read == tc_ch_num:
             tc_init_flag = 1
-
-pwm_data = 60
-ser_data = pwm_data.to_bytes(2, byteorder='little')
-test = ser.write(struct.pack('>B',60 ))
-print("Sent to arduino",test)
 
 
 # ======================= PID =============================================================
@@ -161,6 +156,10 @@ def update():
 
     for ii in range(total_ch):
         curves[ii].setData(data[ii])
+
+    ser_data = int(dc)
+    test = ser.write(struct.pack('>B', ser_data))
+    #print("Sent to arduino", test) #for debugging
 
     print("Duty Cycle: ", dc, "%")
 
