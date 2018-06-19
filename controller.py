@@ -6,7 +6,16 @@ import numpy as np
 from tc08usb import TC08USB, USBTC08_ERROR, USBTC08_UNITS, USBTC08_TC_TYPE
 from pyqtgraph.Qt import QtGui, QtCore
 import pyqtgraph as pg
+import serial
+import struct
+import time as tt
+
+
 from pyqtgraph.ptime import time
+
+uiFile = 'controllerUI.ui'
+WindowTemplate, TemplateBaseClass = pg.Qt.loadUiType(uiFile)
+
 
 #========================= Controller Setup ===========================================
 
@@ -23,6 +32,11 @@ if response in ["y", "Y"]:
 else:
     print("proceeding")
 
+ser_comm = 'COM'+str(arduino_comm)
+ser = serial.Serial(ser_comm, 9600)
+print(ser.name)
+print(ser.isOpen())
+tt.sleep(5)
 
 #======================= PT-104 Initialisation ========================================
 
@@ -34,10 +48,9 @@ temp_array = []
 tc1 = []
 tc2 = []
 rtd1 = []
-temp_hist = np.zeros((tc_ch_num+rtd_ch_num,),dtype=np.float64)
+temp_hist = np.zeros((tc_ch_num + rtd_ch_num,),dtype=np.float64)
 tc_read = 0
 tc_init_flag = 0
-loop_num = 500
 x = np.zeros((rtd_ch_num + tc_ch_num,), dtype=np.int)
 total_ch = tc_ch_num + rtd_ch_num
 
@@ -62,7 +75,7 @@ tc08usb = TC08USB()
 while tc_init_flag == 0: #sometimes there is error setting the TC channels. if so, reset the channels.
     tc08usb.open_unit()
     tc08usb.set_mains(50)
-    for i in range(1, tc_ch_num):
+    for i in range(1, tc_ch_num+1):
         tc08usb.set_channel(i, USBTC08_TC_TYPE.K)
 
     for i in range(0, 10):
@@ -71,6 +84,12 @@ while tc_init_flag == 0: #sometimes there is error setting the TC channels. if s
         tc_read += tc_gs_status
         if tc_read == tc_ch_num:
             tc_init_flag = 1
+
+pwm_data = 60
+ser_data = pwm_data.to_bytes(2, byteorder='little')
+test = ser.write(struct.pack('>B',60 ))
+print("Sent to arduino",test)
+
 
 # ======================= PID =============================================================
 def pid(temp):
@@ -98,13 +117,6 @@ for ch in range(total_ch):
     c = pg.PlotCurveItem(pen=(ch, total_ch*3))
     p.addItem(c)
     curves.append(c)
-
-#p6 = win.addPlot(title="Updating plot")
-#p7 = win.addPlot()
-#curve = p6.plot(pen='y')
-#curve2 = p7.plot(pen='b')
-
-#data = np.random.normal(size=(10,1000))
 ptr = 0
 
 
@@ -125,16 +137,18 @@ def update():
     tc08usb.get_single()
 
     if pid_selector == 1: # TC selected as
-        dc = pid(tc08usb[0] / 1000.0)
+        dc = pid(tc08usb[1] / 1000.0)
     elif pid_selector == 2:
         dc = pid(rtd_array[0] / 1000.0)
     else:
         dc = 0
 
-    for i1 in range(0,tc_ch_num):
-        print("TC"+str(i1+1)+": ",tc08usb[i1])
-        temp_array = np.append(temp_array,tc08usb[i1])
-        data[i1].append(tc08usb[i1])
+    for i1 in range(0, tc_ch_num+1):
+        if i1 != 0:
+            print("TC"+str(i1)+": ",tc08usb[i1])
+            temp_array = np.append(temp_array,tc08usb[i1])
+            data[i1].append(tc08usb[i1])
+
 
         # if i1 == 2:
         #     tc2 = np.append(tc2, tc08usb[i1])
@@ -143,7 +157,7 @@ def update():
     for i2 in range(0,rtd_ch_num):
         print("RTD" + str(i2+1) +": ", rtd_array[i2] / 1000.0)
         temp_array = np.append(temp_array,rtd_array[i2] / 1000.0)
-        data[tc_ch_num + i2].append(rtd_array[i2] / 1000.0)
+        data[tc_ch_num - 1 + i2].append(rtd_array[i2] / 1000.0)
 
     for ii in range(total_ch):
         curves[ii].setData(data[ii])
@@ -173,3 +187,4 @@ if __name__ == '__main__':
     import sys
     if (sys.flags.interactive != 1) or not hasattr(QtCore, 'PYQT_VERSION'):
         QtGui.QApplication.instance().exec_()
+
